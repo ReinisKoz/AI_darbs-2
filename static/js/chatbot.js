@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. SOLIS: Servera izsaukums
     const generateResponse = (incomingChatLi) => {
-        const API_URL = "/chatbot";
+        const API_URL = "/shop/chatbot";
         const messageElement = incomingChatLi.querySelector("p");
 
         const requestOptions = {

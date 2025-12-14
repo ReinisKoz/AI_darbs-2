@@ -1,1 +1,102 @@
-c
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Shop - {{ title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="{{ url_for('index') }}" class="logo">My E-Shop</a>
+            <ul>
+                <li><a href="{{ url_for('index') }}">Home</a></li>
+                <li><a href="{{ url_for('shop.product_list') }}">Shop</a></li>
+                {% if current_user.is_authenticated %}
+                <li><a href="{{ url_for('shop.cart') }}">Cart ({{ current_user.cart_items.count() }})</a></li>
+                <li><a href="{{ url_for('shop.purchase_history') }}">History</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropbtn">Account</a>
+                    <div class="dropdown-content">
+                        <a href="{{ url_for('auth.logout') }}">Logout</a>
+                    </div>
+                </li>
+                {% if current_user.is_admin %}
+                <li><a href="{{ url_for('admin.dashboard') }}">Admin</a></li>
+                {% endif %}
+                {% else %}
+                <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+                <li><a href="{{ url_for('auth.register') }}">Register</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 My E-Shop. All rights reserved.</p>
+    </footer>
+
+    <button class="chatbot-toggler">
+        <span class="material-symbols-rounded">mode_comment</span>
+        <span class="material-symbols-outlined">close</span>
+    </button>
+    <div class="chatbot-box">
+        <header>
+            <h2>E-Shop Assistant</h2>
+            <span class="close-btn material-symbols-outlined">close</span>
+        </header>
+        <ul class="chatbox">
+            <li class="chat incoming">
+                <span class="material-symbols-outlined">smart_toy</span>
+                <p>Hi there! How can I help you today?</p>
+            </li>
+        </ul>
+        <div class="chat-input">
+            <textarea placeholder="Enter a message..." spellcheck="false" required></textarea>
+            <span id="send-btn" class="material-symbols-rounded">send</span>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/chatbot.js') }}" defer></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var dropbtn = document.querySelector('.dropbtn');
+            if (dropbtn) {
+                dropbtn.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    this.nextElementSibling.classList.toggle('show');
+                });
+
+                window.onclick = function(event) {
+                    if (!event.target.matches('.dropbtn')) {
+                        var dropdowns = document.getElementsByClassName("dropdown-content");
+                        for (var i = 0; i < dropdowns.length; i++) {
+                            var openDropdown = dropdowns[i];
+                            if (openDropdown.classList.contains('show')) {
+                                openDropdown.classList.remove('show');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -3,6 +3,10 @@ from models import Product, CartItem, Order, OrderItem
 from database import db
 from flask_login import current_user, login_required
 from forms import AddToCartForm, CheckoutForm
+from flask import jsonify
+from chatbot_integration.chatbot_service import get_chatbot_response
+
+print(">>> SHOP.PY LOADED <<<")
 
 shop_bp = Blueprint('shop', __name__, template_folder='../templates')
 
@@ -24,7 +28,7 @@ def get_products_from_db():
         print(f"Error fetching products from DB: {e}")
         return "I was unable to access the product catalog."
 
-@shop_bp.route('/shop')
+@shop_bp.route('/')
 def product_list():
     products = Product.query.all()
     return render_template('shop/product_list.html', title='Shop', products=products)
@@ -123,3 +127,30 @@ def checkout():
 def purchase_history():
     orders = current_user.orders.order_by(Order.order_date.desc()).all()
     return render_template('purchase_history.html', title='Purchase History', orders=orders)
+
+@shop_bp.route('/chatbot', methods=['POST'])
+def chatbot():
+    print(">>> CHATBOT ENDPOINT HIT <<<")
+    data = request.get_json()
+
+    user_message = data.get('message', '')
+    history = data.get('history', [])
+
+    if not user_message:
+        return jsonify({'error': 'Empty message'}), 400
+
+    # ✅ IEGŪSTAM PRODUKTUS NO DATUBĀZES
+    products = Product.query.all()
+    formatted_products = []
+    for p in products:
+        formatted_products.append({
+            "name": p.name,
+            "price": p.price
+        })
+    
+    print(f">>> Sending to chatbot: '{user_message[:50]}...' with {len(products)} products")
+
+    # ✅ PADODAM PRODUKTUS FUNKCIJAI
+    reply = get_chatbot_response(user_message, history, formatted_products)
+
+    return jsonify({'reply': reply})

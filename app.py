@@ -25,7 +25,7 @@ def create_app():
     from routes.admin import admin_bp
 
     app.register_blueprint(auth_bp, url_prefix='/auth')
-    app.register_blueprint(shop_bp)
+    app.register_blueprint(shop_bp, url_prefix='/shop')
     app.register_blueprint(admin_bp, url_prefix='/admin')
 
     @app.route('/')
